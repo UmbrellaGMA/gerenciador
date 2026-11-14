@@ -8,3 +8,6 @@ next-env.d.ts
 
 # Tokens do Supabase (script de importação)
 tokens.local.txt
+
+.vercel
+.env*
