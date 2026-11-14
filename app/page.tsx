@@ -5,6 +5,7 @@ import type { Client } from "@/lib/types";
 import { pingAllAction, pingNowAction, signOut } from "./actions";
 import { SubmitButton } from "@/components/ui";
 import { demoClients, isDemo } from "@/lib/demo";
+import { FeeInput } from "@/components/FeeInput";
 
 export const dynamic = "force-dynamic";
 
@@ -142,7 +143,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                         <span className="text-zinc-400">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 tabular-nums">{fmtMoney(c.monthly_fee)}</td>
+                    <td className="px-2 py-3">
+                      <FeeInput id={c.id} value={c.monthly_fee} />
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <form action={pingNowAction.bind(null, c.id)}>
                         <SubmitButton variant="ghost" pendingText="…" className="!px-2.5 !py-1 text-xs">

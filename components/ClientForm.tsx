@@ -36,7 +36,11 @@ export function ClientForm({
           <input name="site_url" defaultValue={client?.site_url ?? ""} className={input} placeholder="https://padariadojoao.com.br" />
         </Field>
         <Field label="Mensalidade (R$)">
-          <input name="monthly_fee" inputMode="decimal" defaultValue={client?.monthly_fee ?? ""} className={input} placeholder="150,00" />
+          <input name="monthly_fee" inputMode="decimal" defaultValue={
+              client?.monthly_fee != null
+                ? Number(client.monthly_fee).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : ""
+            } className={input} placeholder="150,00" />
         </Field>
       </section>
 

@@ -37,7 +37,7 @@ function parseClient(fd: FormData) {
     supabase_url: supabase_url?.replace(/\/+$/, "") ?? null,
     supabase_key: str(fd, "supabase_key"),
     ping_table: str(fd, "ping_table") ?? "keep_alive",
-    monthly_fee: fee ? Number(fee.replace(/\./g, "").replace(",", ".")) || null : null,
+    monthly_fee: parseMoney(fee),
     notes: str(fd, "notes"),
     active: fd.get("active") === "on",
   };
@@ -75,6 +75,27 @@ export async function updateClientAction(id: string, fd: FormData) {
   revalidatePath("/");
   revalidatePath(`/clientes/${id}`);
   redirect(`/clientes/${id}`);
+}
+
+/** Converte "1.234,56", "150,00", "150.5" ou "R$ 150" em número. Vazio → null. */
+function parseMoney(raw: string | null): number | null {
+  if (!raw) return null;
+  let s = raw.replace(/[R$\s]/g, "");
+  if (s === "") return null;
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+  const n = Number(s);
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null;
+}
+
+export async function updateFeeAction(id: string, raw: string) {
+  const supabase = await requireUser();
+  const value = parseMoney(raw);
+  if (value === null && raw.trim() !== "") return { ok: false as const, error: "Valor inválido" };
+  const { error } = await supabase.from("clients").update({ monthly_fee: value }).eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/");
+  revalidatePath(`/clientes/${id}`);
+  return { ok: true as const, value };
 }
 
 export async function deleteClientAction(id: string) {
